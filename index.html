@@ -511,6 +511,31 @@
     .testi-author strong { color: var(--cream); font-size: .88rem; }
     .testi-author span { color: #a08860; font-size: .75rem; display: block; }
 
+    /* ── PRODUCTO DESTACADO (rota en cada visita) ── */
+    .destacado-banner {
+      display: flex; align-items: center; gap: 16px;
+      background: linear-gradient(135deg, rgba(245,166,35,.15), rgba(192,57,43,.1));
+      border: 1.5px solid rgba(245,166,35,.4);
+      border-radius: 16px;
+      padding: 18px 24px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+    .destacado-banner .dest-icon { font-size: 2.2rem; }
+    .destacado-banner .dest-label {
+      font-size: .7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold); font-weight: 800; margin-bottom: 2px;
+    }
+    .destacado-banner .dest-nombre {
+      font-family: 'Fredoka One', cursive;
+      color: var(--cream); font-size: 1.15rem;
+    }
+    .destacado-banner .dest-desc { color: #c8b898; font-size: .85rem; margin-top: 2px; }
+
+    /* ── CONTADOR DE VISITAS ── */
+    #visitCounter { color: #a08860; font-size: .8rem; margin-top: 10px; }
+    #visitCounter strong { color: var(--gold); }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       nav ul { display: none; }
@@ -549,7 +574,7 @@
       <a href="#menu" class="btn btn-gold">🍽️ Ver el Menú</a>
       <a href="#ubicacion" class="btn btn-outline">📍 ¿Dónde estamos?</a>
     </div>
-    <div class="estado-pill"><span class="estado-dot"></span> Abrimos hoy · Lun–Vie</div>
+    <div class="estado-pill" id="estadoPill"><span class="estado-dot"></span> <span id="estadoTexto">Consultando horario…</span></div>
   </section>
 
   <!-- INVITATION -->
@@ -572,6 +597,16 @@
     <div class="container">
       <p class="section-label reveal">Lo que ofrecemos</p>
       <h2 class="section-title reveal">Nuestro <span>Menú</span> 🍽️</h2>
+
+      <div class="destacado-banner reveal" id="destacadoBanner">
+        <span class="dest-icon" id="destIcon">🌟</span>
+        <div>
+          <p class="dest-label">Hoy destacamos</p>
+          <p class="dest-nombre" id="destNombre">Cargando…</p>
+          <p class="dest-desc" id="destDesc"></p>
+        </div>
+      </div>
+
       <div class="menu-grid">
 
         <div class="menu-card reveal">
@@ -752,6 +787,7 @@
     <p style="margin-top:14px;">
       <a href="https://wa.me/593939093886" target="_blank" rel="noopener" style="color:#25D366; text-decoration:none; font-weight:800;">📲 WhatsApp: 0939 093 886</a>
     </p>
+    <p id="visitCounter"></p>
   </footer>
 
   <!-- BOTÓN FLOTANTE WHATSAPP -->
@@ -777,6 +813,80 @@
     document.querySelectorAll('.menu-card').forEach((card, i) => {
       card.style.transitionDelay = (i * 0.08) + 's';
     });
+
+    // ── ESTADO ABIERTO/CERRADO EN TIEMPO REAL ──
+    // Horario real: Lun-Vie 7:00-12:30 y 15:30-19:00. Sáb-Dom cerrado.
+    (function actualizarEstado() {
+      const pill = document.getElementById('estadoPill');
+      const texto = document.getElementById('estadoTexto');
+      const now = new Date();
+      const dia = now.getDay(); // 0 dom .. 6 sáb
+      const mins = now.getHours() * 60 + now.getMinutes();
+
+      const M_INI = 7 * 60, M_FIN = 12 * 60 + 30;
+      const T_INI = 15 * 60 + 30, T_FIN = 19 * 60;
+
+      function faltan(destinoMins) {
+        const diff = destinoMins - mins;
+        const h = Math.floor(diff / 60), m = diff % 60;
+        if (h > 0) return `${h}h ${m}min`;
+        return `${m}min`;
+      }
+
+      if (dia === 0 || dia === 6) {
+        texto.textContent = '🔴 Cerrado hoy · Abrimos el Lunes 7:00 AM';
+        pill.style.borderColor = 'rgba(192,57,43,.4)';
+        pill.style.background = 'rgba(192,57,43,.1)';
+      } else if (mins >= M_INI && mins < M_FIN) {
+        texto.textContent = `🟢 Abierto ahora · Cerramos en ${faltan(M_FIN)}`;
+      } else if (mins >= T_INI && mins < T_FIN) {
+        texto.textContent = `🟢 Abierto ahora · Cerramos en ${faltan(T_FIN)}`;
+      } else if (mins >= M_FIN && mins < T_INI) {
+        texto.textContent = `🟡 En receso · Abrimos a las 3:30 PM`;
+        pill.style.borderColor = 'rgba(245,166,35,.4)';
+        pill.style.background = 'rgba(245,166,35,.1)';
+      } else if (mins < M_INI) {
+        texto.textContent = `🔴 Cerrado · Abrimos hoy a las 7:00 AM`;
+        pill.style.borderColor = 'rgba(192,57,43,.4)';
+        pill.style.background = 'rgba(192,57,43,.1)';
+      } else {
+        const esViernes = dia === 5;
+        texto.textContent = esViernes
+          ? '🔴 Cerrado · Abrimos el Lunes 7:00 AM'
+          : '🔴 Cerrado · Abrimos mañana 7:00 AM';
+        pill.style.borderColor = 'rgba(192,57,43,.4)';
+        pill.style.background = 'rgba(192,57,43,.1)';
+      }
+    })();
+
+    // ── PRODUCTO DESTACADO (rota en cada visita real) ──
+    (function productoDestacado() {
+      const productos = [
+        { icon: '🧆', nombre: 'Bolón de Chicharrón', desc: 'Crujiente por fuera, sabroso por dentro.' },
+        { icon: '🧀', nombre: 'Bolón de Queso', desc: 'Relleno de queso derretido en cada mordida.' },
+        { icon: '🫓', nombre: 'Bolón Mixto', desc: 'Chicharrón y queso juntos en un solo bolón.' },
+        { icon: '🥟', nombre: 'Empanadas de Verde', desc: 'Rellenitas de pollo, doraditas y perfectas.' },
+        { icon: '🍤', nombre: 'Empanadas de Camarón', desc: 'Nuestra novedad: camarón sazonado a nuestro estilo.' },
+        { icon: '🫔', nombre: 'Quimbolitos', desc: 'Dulces, esponjosos y envueltos en hoja.' },
+      ];
+
+      let visitas = parseInt(localStorage.getItem('bolonesLesly_visitas') || '0', 10);
+      visitas += 1;
+      localStorage.setItem('bolonesLesly_visitas', visitas);
+
+      const idx = (visitas - 1) % productos.length;
+      const p = productos[idx];
+      document.getElementById('destIcon').textContent = p.icon;
+      document.getElementById('destNombre').textContent = p.nombre;
+      document.getElementById('destDesc').textContent = p.desc;
+
+      const contador = document.getElementById('visitCounter');
+      if (visitas === 1) {
+        contador.innerHTML = '👋 ¡Bienvenido por primera vez a nuestra página!';
+      } else {
+        contador.innerHTML = `Ya nos visitaste <strong>${visitas}</strong> veces desde este dispositivo`;
+      }
+    })();
   </script>
 </body>
 </html>
