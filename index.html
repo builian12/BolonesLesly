@@ -536,6 +536,16 @@
     #visitCounter { color: #a08860; font-size: .8rem; margin-top: 10px; }
     #visitCounter strong { color: var(--gold); }
 
+    /* ── ACCIONES EXTRA (guardar contacto / compartir) ── */
+    .loc-actions {
+      display: flex; flex-wrap: wrap; gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-small {
+      padding: 10px 18px;
+      font-size: .85rem;
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       nav ul { display: none; }
@@ -735,6 +745,10 @@
             <p>Pedidos por WhatsApp<br/>
             <a href="https://wa.me/593939093886?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20%F0%9F%98%8B" target="_blank" rel="noopener" style="color:var(--gold); font-weight:800; text-decoration:none;">0939 093 886</a></p>
           </div>
+          <div class="loc-actions">
+            <button class="btn btn-outline btn-small" onclick="guardarContacto()">💾 Guardar contacto</button>
+            <button class="btn btn-outline btn-small" onclick="compartirPagina()">📤 Compartir con un amigo</button>
+          </div>
         </div>
       </div>
     </div>
@@ -881,12 +895,48 @@
       document.getElementById('destDesc').textContent = p.desc;
 
       const contador = document.getElementById('visitCounter');
-      if (visitas === 1) {
-        contador.innerHTML = '👋 ¡Bienvenido por primera vez a nuestra página!';
-      } else {
-        contador.innerHTML = `Ya nos visitaste <strong>${visitas}</strong> veces desde este dispositivo`;
-      }
+
+      // Contador GLOBAL real (todas las visitas de todos los dispositivos)
+      fetch('https://api.countapi.xyz/hit/bolonesleslyaloag-ec/visitas-totales')
+        .then(res => res.json())
+        .then(data => {
+          contador.innerHTML = `🌎 <strong>${data.value.toLocaleString('es-EC')}</strong> visitas totales a nuestra página`;
+        })
+        .catch(() => {
+          contador.innerHTML = '';
+        });
     })();
+
+    // ── GUARDAR CONTACTO (vCard) ──
+    function guardarContacto() {
+      const vcard = [
+        'BEGIN:VCARD',
+        'VERSION:3.0',
+        'FN:Bolones Lesly',
+        'ORG:Bolones Lesly',
+        'TEL;TYPE=CELL:+593939093886',
+        'ADR;TYPE=WORK:;;Octavio Pazmiño y José Camino, Bloque COLOMBIA;Aloag;;;Ecuador',
+        'NOTE:Bolones\\, empanadas y quimbolitos en Aloag',
+        'END:VCARD'
+      ].join('\n');
+      const blob = new Blob([vcard], { type: 'text/vcard' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'Bolones-Lesly.vcf';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // ── COMPARTIR PÁGINA POR WHATSAPP ──
+    function compartirPagina() {
+      const mensaje = encodeURIComponent(
+        '¡Mira esta página de Bolones Lesly en Aloag! 🫓😋 ' + window.location.href
+      );
+      window.open(`https://wa.me/?text=${mensaje}`, '_blank');
+    }
   </script>
 </body>
 </html>
