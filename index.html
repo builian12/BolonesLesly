@@ -3,7 +3,59 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bolones Lesly – Aloag</title>
+  <title>Bolones Lesly – Aloag | Bolones, Empanadas y Quimbolitos</title>
+
+  <!-- SEO -->
+  <meta name="description" content="Bolones Lesly en Aloag, Ecuador: bolones de chicharrón, queso y mixto, empanadas de verde y camarón, quimbolitos. Pedidos por WhatsApp al 0939 093 886." />
+  <meta name="keywords" content="bolones Aloag, bolones Lesly, empanadas Aloag, comida típica ecuatoriana, bolón de verde, quimbolitos Aloag" />
+  <meta name="author" content="Bolones Lesly" />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://builian12.github.io/BolonesLesly/" />
+
+  <!-- Open Graph (vista previa al compartir en WhatsApp/Facebook) -->
+  <meta property="og:type" content="restaurant.restaurant" />
+  <meta property="og:title" content="Bolones Lesly – Aloag" />
+  <meta property="og:description" content="Bolones, empanadas de verde y camarón, y quimbolitos hechos con ingredientes frescos. Pide ya por WhatsApp." />
+  <meta property="og:url" content="https://builian12.github.io/BolonesLesly/" />
+  <meta property="og:locale" content="es_EC" />
+
+  <!-- Favicon (emoji, sin necesidad de archivo extra) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🫓</text></svg>" />
+  <meta name="theme-color" content="#F5A623" />
+
+  <!-- Datos estructurados para Google (aparecer en búsquedas y Maps) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FastFoodRestaurant",
+    "name": "Bolones Lesly",
+    "image": "",
+    "telephone": "+593939093886",
+    "servesCuisine": "Ecuatoriana",
+    "priceRange": "$",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Octavio Pazmiño y José Camino, Bloque COLOMBIA",
+      "addressLocality": "Aloag",
+      "addressCountry": "EC"
+    },
+    "openingHoursSpecification": [
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+        "opens": "07:00",
+        "closes": "12:30"
+      },
+      {
+        "@type": "OpeningHoursSpecification",
+        "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday"],
+        "opens": "15:30",
+        "closes": "19:00"
+      }
+    ]
+  }
+  </script>
+
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
   <style>
     :root {
@@ -546,6 +598,31 @@
       font-size: .85rem;
     }
 
+    /* ── VOLVER ARRIBA ── */
+    .back-top {
+      position: fixed;
+      right: 20px;
+      bottom: 92px;
+      z-index: 199;
+      width: 44px; height: 44px;
+      background: rgba(245,166,35,.15);
+      border: 1.5px solid var(--gold);
+      color: var(--gold);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(10px);
+      transition: opacity .3s, transform .3s, background .2s;
+    }
+    .back-top.show { opacity: 1; pointer-events: auto; transform: none; }
+    .back-top:hover { background: rgba(245,166,35,.3); }
+    @media (max-width: 600px) {
+      .back-top { right: 16px; bottom: 82px; width: 40px; height: 40px; }
+    }
+
     /* ── RESPONSIVE ── */
     @media (max-width: 600px) {
       nav ul { display: none; }
@@ -746,8 +823,9 @@
             <a href="https://wa.me/593939093886?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20%F0%9F%98%8B" target="_blank" rel="noopener" style="color:var(--gold); font-weight:800; text-decoration:none;">0939 093 886</a></p>
           </div>
           <div class="loc-actions">
-            <button class="btn btn-outline btn-small" onclick="guardarContacto()">💾 Guardar contacto</button>
-            <button class="btn btn-outline btn-small" onclick="compartirPagina()">📤 Compartir con un amigo</button>
+            <button class="btn btn-outline btn-small" onclick="comoLlegar()">🧭 Cómo llegar</button>
+            <a href="tel:+593939093886" class="btn btn-outline btn-small">📞 Llamar ahora</a>
+            <button class="btn btn-outline btn-small" onclick="compartirPagina()">📤 Compartir</button>
           </div>
         </div>
       </div>
@@ -804,6 +882,9 @@
     <p id="visitCounter"></p>
   </footer>
 
+  <!-- VOLVER ARRIBA -->
+  <button class="back-top" id="backTop" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Volver arriba">⬆️</button>
+
   <!-- BOTÓN FLOTANTE WHATSAPP -->
   <a href="https://wa.me/593939093886?text=Hola%2C%20me%20gustar%C3%ADa%20hacer%20un%20pedido%20%F0%9F%98%8B" target="_blank" rel="noopener" class="wa-float" aria-label="Pedir por WhatsApp">
     💬
@@ -822,6 +903,12 @@
       });
     }, { threshold: 0.12 });
     reveals.forEach(r => observer.observe(r));
+
+    // Botón "volver arriba"
+    const backTop = document.getElementById('backTop');
+    window.addEventListener('scroll', () => {
+      backTop.classList.toggle('show', window.scrollY > 500);
+    });
 
     // Stagger menu cards
     document.querySelectorAll('.menu-card').forEach((card, i) => {
@@ -907,27 +994,10 @@
         });
     })();
 
-    // ── GUARDAR CONTACTO (vCard) ──
-    function guardarContacto() {
-      const vcard = [
-        'BEGIN:VCARD',
-        'VERSION:3.0',
-        'FN:Bolones Lesly',
-        'ORG:Bolones Lesly',
-        'TEL;TYPE=CELL:+593939093886',
-        'ADR;TYPE=WORK:;;Octavio Pazmiño y José Camino, Bloque COLOMBIA;Aloag;;;Ecuador',
-        'NOTE:Bolones\\, empanadas y quimbolitos en Aloag',
-        'END:VCARD'
-      ].join('\n');
-      const blob = new Blob([vcard], { type: 'text/vcard' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'Bolones-Lesly.vcf';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+    // ── CÓMO LLEGAR (direcciones reales desde la ubicación del usuario) ──
+    function comoLlegar() {
+      const destino = encodeURIComponent('Octavio Pazmiño y José Camino, Aloag, Ecuador');
+      window.open(`https://www.google.com/maps/dir/?api=1&destination=${destino}`, '_blank');
     }
 
     // ── COMPARTIR PÁGINA POR WHATSAPP ──
